@@ -35,7 +35,8 @@ class Server(object):
         self.top_cnt = args.top_cnt
         self.auto_break = args.auto_break
         self.select_client = args.select_client #argumento select_client
-
+        self.actual_round = self.global_rounds
+        
         self.client_losses = {} #dicionario com as loss dos clientes
         self.clients = []
         self.selected_clients = []
@@ -98,9 +99,11 @@ class Server(object):
             self.client_losses[client.id] = client.loss_value    
 
     def select_clients(self):
+        self.actual_round = self.actual_round - 1
         if self.random_join_ratio:
             self.current_num_join_clients = np.random.choice(
                 range(self.num_join_clients, self.num_clients+1), 1, replace=False)[0]
+            
 
         elif self.select_client == 'random':
             ratio = 0.2
@@ -108,6 +111,7 @@ class Server(object):
             selected_clients = list(np.random.choice(self.clients, num_to_select, replace=False))
 
         elif self.select_client == 'loss':
+            
             ratio = 0.2 #20%
             num_to_select = int(self.num_clients * ratio) #numero de clientes 20%
 
@@ -125,12 +129,14 @@ class Server(object):
                 size=num_to_select,
                 replace=False,
                 p=weights)) #seleciona clientes aleatoriamente levando em consideracao os pesos
-            
-            
-        else:
-            self.current_num_join_clients = self.num_join_clients
-            selected_clients = list(np.random.choice(self.clients, self.current_num_join_clients, replace=False))
-
+        
+        
+        if self.actual_round==98:
+            print(self.actual_round)
+            current_num_join_clients = 20
+            selected_clients = list(np.random.choice(self.clients, current_num_join_clients, replace=False))
+            print(len(selected_clients))
+        print(selected_clients)
         return selected_clients
 
     def send_models(self):
