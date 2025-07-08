@@ -32,7 +32,7 @@ class FedAvg(Server):
 
             for client in self.selected_clients:
                 client.train()
-                self.register_client_loss(client)
+                self.register_client_loss(client) #chama a funcao para registrar a loss de cada cliente
 
 
             # threads = [Thread(target=client.train)

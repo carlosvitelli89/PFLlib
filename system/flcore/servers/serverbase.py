@@ -34,8 +34,9 @@ class Server(object):
         self.save_folder_name = args.save_folder_name
         self.top_cnt = args.top_cnt
         self.auto_break = args.auto_break
+        self.select_client = args.select_client #argumento select_client
 
-        self.client_losses = {}
+        self.client_losses = {} #dicionario com as loss dos clientes
         self.clients = []
         self.selected_clients = []
         self.train_slow_clients = []
@@ -92,7 +93,7 @@ class Server(object):
         self.send_slow_clients = self.select_slow_clients(
             self.send_slow_rate)
 
-    def register_client_loss(self, client):
+    def register_client_loss(self, client): #funcao para armazenar a loss de cada cliente, se o cliente possui loss, o dicionario eh atualizado com a loss de cada cliente, com a chave sendo o id e o valor sendo a loss
         if hasattr(client, 'loss_value'):
             self.client_losses[client.id] = client.loss_value    
 
@@ -107,21 +108,24 @@ class Server(object):
             selected_clients = list(np.random.choice(self.clients, num_to_select, replace=False))
 
         elif self.select_client == 'loss':
-            ratio = 0.2
-            num_to_select = int(self.num_clients * ratio)
+            ratio = 0.2 #20%
+            num_to_select = int(self.num_clients * ratio) #numero de clientes 20%
 
             if not hasattr(self, 'client_losses') or len(self.client_losses) < self.num_clients:
-                return self.clients
+                return self.clients #quando nao tem loss suficiente retorna todos os clientes para treino
 
-
+            #cria um array de pesos para cada cliente na lista de clientes total, a loss eh chamada de acordo com o id do cliente
+            #a loss eh somada com epsilon para nao dividir por 0 e eh calculado o peso de forma inversamente proporcional com loss
+            #os pesos sao armazenados em um array, um elemento para cada cliente
             weights = np.array([1 / (self.client_losses.get(client.id) + 1e-8) for client in self.clients])
-            weights /= weights.sum()
+            weights /= weights.sum() #pesos normalizados para soma ser = 1
 
             selected_clients = list(np.random.choice(
                 self.clients,
                 size=num_to_select,
                 replace=False,
-                p=weights))
+                p=weights)) #seleciona clientes aleatoriamente levando em consideracao os pesos
+            
             
         else:
             self.current_num_join_clients = self.num_join_clients

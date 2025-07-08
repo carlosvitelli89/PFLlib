@@ -32,7 +32,7 @@ class clientAVG(Client):
                 output = self.model(x)
                 loss = self.loss(output, y)
                 self.optimizer.zero_grad()
-                self.loss_value = loss.item() #add
+                self.loss_value = loss.item() #loss eh guardada no atributo loss_value do cliente
                 loss.backward()
                 self.optimizer.step()
 

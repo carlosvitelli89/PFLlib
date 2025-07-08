@@ -388,7 +388,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     # general
-    parser.add_argument('-sl', "--select_client", type=str, default="random",
+    parser.add_argument('-sl', "--select_client", type=str, default="random", #modo de selecao de cliente
                         choices=["random", "loss"])
     parser.add_argument('-go', "--goal", type=str, default="test", 
                         help="The goal for this experiment")
